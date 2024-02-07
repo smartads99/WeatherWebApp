@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 import searchIcon from "./assets/search.png";
@@ -51,30 +51,68 @@ const WeatherDetais=({ icon,temp,city,country,lat,log,humidity,wind})=>{
 
 function App() {
   let api_key="31574b142dcf2182775ba565a24be264";
-  const [text,setText]=useState("Chennai");
+  const [text,setText]=useState("Bangalore");
 
   const [icon,setIcon]=useState(snowIcon);
   const [temp,setTemp]=useState(0);
-  const [city,setCity]=useState("Chennai");
-  const [country,SetCountry]=useState("IN")
+  const [city,setCity]=useState("");
+  const [country,SetCountry]=useState("")
   const [lat,setLat]=useState(0);
   const [log,setLog]=useState(0);
-  const [humidity, setHumidity]=useState(0);
+  const [humidity,setHumidity]=useState(0);
   const [wind,setWind]=useState(0);
 
   const [cityNotFound, setCityNotFound]=useState(false);
   const [loading, setLoading]=useState(false);
+  const [error,setError]=useState(null);
+
+  const weatherIconMap={
+    "01d":clearIcon,
+    "01n":clearIcon,
+    "02d":cloudIcon,
+    "02n":cloudIcon,
+    "03d":drizzleIcon,
+    "03n":drizzleIcon,
+    "04d":drizzleIcon,
+    "04n":drizzleIcon,
+    "09d":rainIcon,
+    "09n":rainIcon,
+    "010d":rainIcon,
+    "010n":rainIcon,
+    "011d":rainIcon,
+    "011n":rainIcon,
+    "013d":snowIcon,
+    "013n":snowIcon,
+  }
+
 
   const search =async() =>{
     setLoading(true);
 
-    let url="https://api.openweathermap.org/data/2.5/weather?q= ${text}&appid= ${api_key}&units=Metric";
+    let url=`https://api.openweathermap.org/data/2.5/weather?q=${text}&appid=${api_key}&units=Metric`;
     try{
       let res= await fetch(url);
       let data= await res.json();
       console.log(data);
+      if(data.cod==="404"){
+        console.error("City not found");
+        setCityNotFound(true);
+        setLoading(false);
+        return;
+      }
+      setHumidity(data.main.humidity);
+      setWind(data.wind.speed);
+      setTemp(Math.floor(data.main.temp));
+      setCity(data.name);
+      SetCountry(data.sys.country);
+      setLat(data.coord.lat);
+      setLog(data.coord.lon);
+      const WeatherIconCode=data.weather[0].icon;
+      setIcon(weatherIconMap[WeatherIconCode] || clearIcon)
+      setCityNotFound(false);
     } catch(error){
       console.error("An error occured:",error.message);
+      setError("An Error Occurred while fetching weather data.");
     } finally{
       setLoading(false);
     }
@@ -90,7 +128,9 @@ function App() {
       search();
     }
   };
-
+useEffect(function(){
+  search();
+},[]);
 
   return (
     <>
@@ -102,8 +142,13 @@ function App() {
           <img src={searchIcon} alt="search" />
         </div>
       </div>
-      <WeatherDetais icon={icon} temp={temp} city={city} country={country} lat={lat} log={log} humidity={humidity} wind={wind} />
     
+    {loading && <div className="loading-message">Loading....</div>}
+    {error && <div className="error-message">{error}</div>}
+    {cityNotFound &&  <div className="city-not-found">City Not Found</div>}
+
+    {!loading && !cityNotFound &&  <WeatherDetais icon={icon} temp={temp} city={city} country={country} lat={lat} log={log} humidity={humidity} wind={wind} />}
+
     <p className='bsh'>
       Designed by <span>Boobesh</span>
     </p>

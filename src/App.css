@@ -1,7 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Caveat&family=Roboto:ital,wght@1,500&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@1,700&display=swap');
 *{
-  font-family: 'Black Ops One', system-ui;
+  font-family: 'Poppins', sans-serif;
 }
 
 body {
@@ -38,7 +37,7 @@ body {
   outline: none;
   padding: 10px;
 }
-.search-icon{
+.search-icon {
   padding: 15px;
   height: 30px;
   cursor: pointer;
@@ -137,4 +136,13 @@ color: #555;
 
 .bsh span{
   color: #333;
+}
+
+.city-not-found,
+.loading-message,
+.error-message{
+  margin-top: 10px;
+  font-size: 25px;
+  font-weight: 400;
+  text-align: center;
 }
